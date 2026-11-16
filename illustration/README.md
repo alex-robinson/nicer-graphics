@@ -6,7 +6,7 @@ Shares the logo's tile shape (corner ratio 28/128), palette, corner sun, and the
 
 ## Caption (unlabelled, final)
 
-**Figure X.** Interactions between the ice sheet, atmosphere, ocean and solid Earth addressed in NICER. The grounding line (black dot) rests on a bed that deepens inland, so its retreat (dashed arrow) can become self-sustaining.
+**Figure X.** Interactions between the ice sheet, atmosphere, ocean and solid Earth addressed in NICER. The grounding line rests on a bed that deepens inland, so its retreat (dashed arrow) can become self-sustaining.
 
 ## Caption (labelled)
 

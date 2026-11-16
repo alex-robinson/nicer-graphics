@@ -23,6 +23,7 @@ FLOW = "#5E93C4"
 EARTH = "#E9DCCB"                     # light marks on bedrock
 FONT = "Helvetica Neue, Helvetica, Arial, sans-serif"
 FS = 15
+LH = 17                               # line spacing of two-line labels
 LW = 3.2                              # standard process line width
 
 SL = 330.0
@@ -180,7 +181,7 @@ snow = "".join(f'<circle cx="{x + (7 if j % 2 else 0):.1f}" cy="{y:.1f}" r="2.6"
                for j, y in enumerate(rng(106, 150, 4)) for x in rng(72, 156, 7) if y < surf(x + 7) - 7)
 el["snow"] = cloud(118, 72) + f'<g fill="#FFFFFF">{snow}</g>'
 # katabatic wind down the slope (gust glyph curling at its downstream end)
-el["kat"] = line(curl([(x, surf(x) - 13) for x in rng(168, 226, 20)], sign=-1, R=9), "#FFFFFF")
+el["kat"] = line(curl([(x, surf(x) - 13) for x in rng(182, 240, 20)], sign=-1, R=9), "#FFFFFF")
 # surface melt ponds on the shelf
 el["melt"] = "".join(f'<ellipse cx="{x}" cy="{surf(x) + 1:.1f}" rx="{rx}" ry="3" fill="#3E9AD6"/>'
                      for x, rx in ((334, 9), (358, 8), (378, 8)))
@@ -190,39 +191,37 @@ el["layers"] = layers
 # basal sliding
 el["slide"] = "".join(arrow([(x, bed(x) - 11), (x + 34, bed(x + 34) - 11)], "#3B3B3B", 2.6) for x in (110, 170))
 # geothermal heat flux (same glyph as the surface fluxes)
-el["ghf"] = arrow(wavy((152, 556), (152, 490)), WARM)
+el["ghf"] = arrow(wavy((152, 570), (152, 504)), WARM)
 # solid-Earth response (uplift / subsidence)
-el["gia"] = line(spring(182, 492, 556), EARTH, 2.8)
+el["gia"] = line(spring(182, 506, 570), EARTH, 2.8)
 # grounding line and its retreat down the retrograde bed
-el["gl"] = (f'<circle cx="{XG}" cy="{bed(XG)}" r="5.5" fill="{INK}"/>'
-            + arrow([(x, bed(x) + 14) for x in rng(XG - 12, XG - 80, 12)], EARTH, 2.6, dash="7 5"))
-# warm ocean water rising onto the shelf into the cavity
-el["warm"] = arrow(bez((540, 512), (480, 500), (420, 480), (380, 470)) + bez((380, 470), (340, 462), (305, 454), (276, 449))[1:],
-                   WARM, 4.0)
+el["gl"] = (arrow([(x, bed(x) + 14) for x in rng(XG - 12, XG - 80, 12)], EARTH, 2.6, dash="7 5"))
+# warm ocean water: from the shelf break into the cavity, along the bed
+el["warm"] = arrow(smooth([(x, bed(x) - 11) for x in rng(418, 290, 40)], 3), WARM, 4.0)
 # meltwater plume along the shelf base towards the front
-el["plume"] = arrow(bez((272, 440), (310, 426), (345, 410), (380, 397)), PLUME, 3.2)
+el["plume"] = arrow([(x, base(x) + 8) for x in rng(276, 382, 10)], PLUME, 3.2)
 # calving
 el["calve"] = f'<path d="M506,331 L510,321 L528,319 L536,331 L534,360 L510,363 Z" fill="{ICEC}"/>'
 
 ORDER = ["layers", "flow", "slide", "gl", "ghf", "gia", "melt", "calve", "solar", "lw", "wind", "snow", "kat"]
 
 # label: text, x, y, anchor, colour (rotation in degrees optional)
-xk = 192; ang = math.degrees(math.atan2(surf(xk + 5) - surf(xk - 5), 10))
+xk = 206; ang = math.degrees(math.atan2(surf(xk + 5) - surf(xk - 5), 10))
 LAB = [
     ("solar radiation", 452, 214, "middle", INK),
-    ("longwave", XUP + 34, 252, "start", INK),
+    ("surface\nradiation", XUP + 34, 244, "start", INK),
     ("moisture transport", 320, 22, "middle", INK),
     ("snowfall", 118, 79, "middle", "#5B7C99"),
     ("katabatic wind", xk, surf(xk) - 34, "middle", INK, ang),
     ("surface melt", 324, 298, "start", INK),
-    ("ice flow", 110, depth(110, 0.15) + 24, "middle", "#3C6E9E"),
-    ("internal layers", 92, 392, "middle", "#6F95B8"),
+    ("ice flow", 84, depth(84, 0.15) + 24, "middle", "#3C6E9E"),
+    ("internal layers", 92, (depth(92, 0.55) + depth(92, 0.76)) / 2 + 5, "middle", "#6F95B8"),
     ("basal sliding", 150, bed(150) - 26, "middle", "#3B3B3B"),
-    ("geothermal heat", 138, 528, "end", "#F3E6D6"),
-    ("solid Earth", 200, 528, "start", "#F3E6D6"),
-    ("grounding line", 300, 484, "middle", "#F3E6D6"),
-    ("warm ocean water", 500, 456, "middle", "#FFFFFF"),
-    ("basal melt", 445, 426, "middle", "#FFFFFF"),
+    ("geothermal\nheat", 138, 534, "end", "#F3E6D6"),
+    ("solid Earth", 200, 542, "start", "#F3E6D6"),
+    ("grounding line", 236, 480, "middle", "#F3E6D6"),
+    ("warm ocean water", 430, 490, "start", "#FFFFFF"),
+    ("basal melt", 372, 419, "start", "#FFFFFF"),
     ("calving", 521, 384, "middle", "#FFFFFF"),
 ]
 
@@ -233,8 +232,9 @@ def labels():
     out = []
     for t, x, y, a, c, *rot in LAB:
         tr = f' transform="rotate({rot[0]:.1f} {x:.1f} {y:.1f})"' if rot else ""
-        out.append(f'<text x="{x:.1f}" y="{y:.1f}"{tr} text-anchor="{a}" font-family="{FONT}" font-size="{FS}" '
-                   f'font-weight="500" fill="{c}">{t}</text>')
+        for i, s in enumerate(t.split("\n")):  # one <text> per line: sips ignores tspan dy
+            out.append(f'<text x="{x:.1f}" y="{y + i * LH:.1f}"{tr} text-anchor="{a}" font-family="{FONT}" '
+                       f'font-size="{FS}" font-weight="500" fill="{c}">{s}</text>')
     return "".join(out)
 
 

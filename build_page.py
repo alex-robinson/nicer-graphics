@@ -17,7 +17,7 @@ ICON, ICON_MONO = "logo/nicer-icon.svg", "logo/nicer-icon-mono.svg"
 ILLUS = [
     ("Unlabelled (final)", "illustration/nicer-illustration.png",
      "Interactions between the ice sheet, atmosphere, ocean and solid Earth addressed in NICER. The grounding line "
-     "(black dot) rests on a bed that deepens inland, so its retreat (dashed arrow) can become self-sustaining."),
+     "rests on a bed that deepens inland, so its retreat (dashed arrow) can become self-sustaining."),
     ("Labelled", "illustration/nicer-illustration-labels.png",
      "Same figure with the processes named, for slides and the website."),
 ]
