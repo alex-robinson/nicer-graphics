@@ -11,8 +11,8 @@ LOGOS = [  # label, colour file, mono file, display widths, show on dark, note
      "Tile: marine ice sheet on a bed below sea level, floating ice shelf, flat sea, sun in the corner. "
      "Sky in the 2007 NICE tile blue (#60B3E5), sea #1C5F96. A thin waterline continues through N and I and rises through C."),
     ("Full logo with title", "logo/nicer-logo-title.svg", "logo/nicer-logo-title-mono.svg", (480, 300), False,
-     "Project title under the wordmark, spanning N to R. Set in TeX Gyre Heros (GUST Font License) and converted "
-     "to outlines, so it renders the same everywhere without the font. Not for dark backgrounds (black title)."),
+     "Project title under the wordmark, spanning N to R. Set in TeX Gyre Heros Bold (GUST Font License), dark grey, and converted "
+     "to outlines, so it renders the same everywhere without the font. Not for dark backgrounds (dark title)."),
     ("Wordmark", "logo/nicer-wordmark.svg", "logo/nicer-wordmark-mono.svg", (240, 120), True,
      "Wordmark only, same colours and waterline."),
 ]

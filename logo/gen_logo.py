@@ -186,10 +186,11 @@ def icon1(mono):
 
 
 # ---------------------------------------------------------------- full logo with project title
-# The title is set in TeX Gyre Heros (GUST Font License, logo/fonts/) and converted to outlines, so the
+# The title is set in TeX Gyre Heros Bold (GUST Font License, logo/fonts/), dark grey in colour, and converted to outlines, so the
 # files render identically without the font installed. It spans the wordmark from N to R.
 TITLE = "Next-generation Ice sheet-Climate Research"
-FONT = pathlib.Path(__file__).parent / "fonts" / "texgyreheros-regular.otf"
+FONT = pathlib.Path(__file__).parent / "fonts" / "texgyreheros-bold.otf"
+TITLE_COL = "#3E454D"   # dark grey: lighter than the ink so the title stays secondary to NICER
 TITLE_GAP = 12.0   # letters bottom (y = 100) to title cap top
 
 
@@ -227,7 +228,7 @@ def concept1b_title(mono):
     body += (f'<g clip-path="url(#{pre}-a)" fill="{top}">{letters(X1)}</g>'
              f'<g clip-path="url(#{pre}-b)" fill="{bot}">{letters(X1)}</g>')
     d, ybot = text_outline(TITLE, X1["N"], W1, 100 + TITLE_GAP)
-    body += f'<path d="{d}" fill="{INK}"/>'
+    body += f'<path d="{d}" fill="{INK if mono else TITLE_COL}"/>'
     h = max(BY + BT, ybot) + 6 - (BY - 6)
     return svg((-6, BY - 6, W1 + 12, round(h, 1)), f"NICER: {TITLE}" + (" (mono)" if mono else ""), body, defs)
 
