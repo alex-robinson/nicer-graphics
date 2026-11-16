@@ -1,6 +1,6 @@
 #!/bin/bash
 # Regenerate all NICER graphics: SVGs, PNGs and the overview page (index.html).
-# Needs python3 (standard library only) and macOS sips for rasterizing.
+# Needs python3 with fontTools (logo title outlines) and macOS sips for rasterizing.
 # Usage: bash build.sh   (run from anywhere)
 set -euo pipefail
 D="$(cd "$(dirname "$0")" && pwd)"; TMP="$(mktemp -d)"; trap 'rm -r "$TMP"' EXIT
@@ -23,6 +23,8 @@ for w in 32 64 180 512 1024; do render "$L/nicer-icon.svg" $w "$L/png/nicer-icon
 render "$L/nicer-icon-mono.svg" 1024 "$L/png/nicer-icon-mono-1024.png"
 for w in 600 1200 3000; do render "$L/nicer-logo.svg" $w "$L/png/nicer-logo-$w.png"; done
 render "$L/nicer-logo-mono.svg" 3000 "$L/png/nicer-logo-mono-3000.png"
+for w in 600 1200 3000; do render "$L/nicer-logo-title.svg" $w "$L/png/nicer-logo-title-$w.png"; done
+render "$L/nicer-logo-title-mono.svg" 3000 "$L/png/nicer-logo-title-mono-3000.png"
 for w in 1200 3000; do render "$L/nicer-wordmark.svg" $w "$L/png/nicer-wordmark-$w.png"; done
 
 I="$D/illustration"   # 2008 px = 600 dpi at 85 mm print width

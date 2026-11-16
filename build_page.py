@@ -6,11 +6,15 @@ import html, pathlib, sys
 
 root = pathlib.Path(sys.argv[1])
 
-LOGOS = [  # label, colour file, mono file, note
-    ("Full logo", "logo/nicer-logo.svg", "logo/nicer-logo-mono.svg",
+LOGOS = [  # label, colour file, mono file, display widths, show on dark, note
+    ("Full logo", "logo/nicer-logo.svg", "logo/nicer-logo-mono.svg", (240, 120), True,
      "Tile: marine ice sheet on a bed below sea level, floating ice shelf, flat sea, sun in the corner. "
      "Sky in the 2007 NICE tile blue (#60B3E5), sea #1C5F96. A thin waterline continues through N and I and rises through C."),
-    ("Wordmark", "logo/nicer-wordmark.svg", "logo/nicer-wordmark-mono.svg", "Wordmark only, same colours and waterline."),
+    ("Full logo with title", "logo/nicer-logo-title.svg", "logo/nicer-logo-title-mono.svg", (480, 300), False,
+     "Project title under the wordmark, spanning N to R. Set in TeX Gyre Heros (GUST Font License) and converted "
+     "to outlines, so it renders the same everywhere without the font. Not for dark backgrounds (black title)."),
+    ("Wordmark", "logo/nicer-wordmark.svg", "logo/nicer-wordmark-mono.svg", (240, 120), True,
+     "Wordmark only, same colours and waterline."),
 ]
 ICON, ICON_MONO = "logo/nicer-icon.svg", "logo/nicer-icon-mono.svg"
 
@@ -60,9 +64,10 @@ parts = [f"<!doctype html><html lang='en'><head><meta charset='utf-8'>"
          "<h2>Logo</h2><p class='mut'>Homage to the 2007 NICE logo (melting ice tiles, sun): "
          "<a href='https://web.archive.org/web/2009/http://nice.ipsl.jussieu.fr/'>Wayback Machine snapshot</a>.</p>"]
 
-for label, full, mono, note in LOGOS:
-    t = [tile("240 px", full, "width:240px", "light"), tile("120 px", full, "width:120px", "light"),
-         tile("on dark", full, "width:160px", "dark"), tile("mono", mono, "width:160px", "light")]
+for label, full, mono, widths, dark, note in LOGOS:
+    t = [tile(f"{w} px", full, f"width:{w}px", "light") for w in widths]
+    t += [tile("on dark", full, "width:160px", "dark")] if dark else []
+    t += [tile("mono", mono, f"width:{widths[-1]}px", "light")]
     if label == "Full logo":
         t += [tile("icon 64", ICON, "width:64px;height:64px", "light"), tile("icon 32", ICON, "width:32px;height:32px", "light"),
               tile("icon mono 32", ICON_MONO, "width:32px;height:32px", "light")]

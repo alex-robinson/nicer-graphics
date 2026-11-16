@@ -1,8 +1,14 @@
-"""Generate the NICER logo SVGs: tile icon, wordmark and full logo, each in colour and mono.
+"""Generate the NICER logo SVGs: tile icon, wordmark, full logo and full logo with the project title,
+each in colour and mono. Needs fontTools (title outlines).
 
 Usage: python3 gen_logo.py OUTDIR
 """
 import math, pathlib, sys
+
+from fontTools.pens.boundsPen import BoundsPen
+from fontTools.pens.svgPathPen import SVGPathPen
+from fontTools.pens.transformPen import TransformPen
+from fontTools.ttLib import TTFont
 
 OUT = pathlib.Path(sys.argv[1])
 OUT.mkdir(parents=True, exist_ok=True)
@@ -179,6 +185,55 @@ def icon1(mono):
     return svg((0, BY, BT, BT), "NICER icon: ice sheet and floating shelf, sun" + (" (mono)" if mono else ""), body, defs)
 
 
+# ---------------------------------------------------------------- full logo with project title
+# The title is set in TeX Gyre Heros (GUST Font License, logo/fonts/) and converted to outlines, so the
+# files render identically without the font installed. It spans the wordmark from N to R.
+TITLE = "Next-generation Ice sheet-Climate Research"
+FONT = pathlib.Path(__file__).parent / "fonts" / "texgyreheros-regular.otf"
+TITLE_GAP = 12.0   # letters bottom (y = 100) to title cap top
+
+
+def text_outline(text, x0, x1, cap_top):
+    """SVG path of text in FONT, kerned, scaled uniformly to span x0..x1 with its cap height starting at cap_top."""
+    f = TTFont(FONT)
+    cmap, gs, hmtx = f.getBestCmap(), f.getGlyphSet(), f["hmtx"]
+    kern = {}
+    for lk in f["GPOS"].table.LookupList.Lookup:
+        for st in (lk.SubTable if lk.LookupType == 2 else []):
+            if st.Format == 1:
+                for g1, ps in zip(st.Coverage.glyphs, st.PairSet):
+                    for r in ps.PairValueRecord:
+                        kern[g1, r.SecondGlyph] = getattr(r.Value1, "XAdvance", 0) or 0
+    names = [cmap[ord(c)] for c in text]
+    xs, x = [], 0.0
+    for i, g in enumerate(names):
+        xs.append(x)
+        x += hmtx[g][0] + (kern.get((g, names[i + 1]), 0) if i + 1 < len(names) else 0)
+    last = gs[names[-1]]
+    bp = BoundsPen(gs); last.draw(bp)
+    width = xs[-1] + bp.bounds[2]          # to the right ink edge of the last glyph
+    s = (x1 - x0) / width
+    base = cap_top + s * f["OS/2"].sCapHeight
+    pen = SVGPathPen(gs, ntos=lambda v: f"{v:.2f}")
+    for g, gx in zip(names, xs):
+        gs[g].draw(TransformPen(pen, (s, 0, 0, -s, x0 + s * gx, base)))
+    return pen.getCommands(), base + s * 220   # path, bottom incl. descenders
+
+
+def concept1b_title(mono):
+    pre = "c1tm" if mono else "c1t"
+    defs, body = grounded_tile(pre, mono)
+    top, bot = (INK, INK) if mono else (SKY, SEA)
+    body += (f'<g clip-path="url(#{pre}-a)" fill="{top}">{letters(X1)}</g>'
+             f'<g clip-path="url(#{pre}-b)" fill="{bot}">{letters(X1)}</g>')
+    d, ybot = text_outline(TITLE, X1["N"], W1, 100 + TITLE_GAP)
+    body += f'<path d="{d}" fill="{INK}"/>'
+    h = max(BY + BT, ybot) + 6 - (BY - 6)
+    return svg((-6, BY - 6, W1 + 12, round(h, 1)), f"NICER: {TITLE}" + (" (mono)" if mono else ""), body, defs)
+
+
+write("nicer-logo-title.svg", concept1b_title(False))
+write("nicer-logo-title-mono.svg", concept1b_title(True))
 write("nicer-icon.svg", icon1(False))
 write("nicer-icon-mono.svg", icon1(True))
 write("nicer-wordmark.svg", concept1(False, with_tile=False))
