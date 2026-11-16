@@ -24,6 +24,9 @@ ILLUS = [
      "rests on a bed that deepens inland, so its retreat (dashed arrow) can become self-sustaining."),
     ("Labelled", "illustration/nicer-illustration-labels.png",
      "Same figure with the processes named, for slides and the website."),
+    ("Round", "illustration/nicer-illustration-round.png",
+     "Vector redraw of the consortium's hand-drawn round badge, without lettering: ice sheet with its model mesh, "
+     "layered cut face, sub-shelf ocean circulation, surface fluxes, wind, sun and clouds."),
 ]
 
 CSS = """
@@ -81,7 +84,7 @@ parts.append("<div class='row'><div class='lab'>Files</div><ul class='files'>"
              + "</ul></div>")
 
 parts.append("<h2>Illustration</h2><p class='mut'>Ice sheet, atmosphere, ocean and solid Earth interactions, in the "
-             "logo's tile shape and palette. PNG 2008 px square (600 dpi at 85 mm); SVG sources alongside.</p>"
+             "logo's tile shape and palette, and a round version after the hand-drawn badge. PNG 2008 px square (600 dpi at 85 mm); SVG sources alongside.</p>"
              "<div class='row'><div class='figs'>")
 for label, p, cap in ILLUS:
     svg = p.replace(".png", ".svg")

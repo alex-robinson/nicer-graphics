@@ -8,6 +8,7 @@ D="$(cd "$(dirname "$0")" && pwd)"; TMP="$(mktemp -d)"; trap 'rm -r "$TMP"' EXIT
 python3 "$D/logo/gen_logo.py" "$D/logo"
 python3 "$D/illustration/gen_illustration.py" "$D/illustration" none
 python3 "$D/illustration/gen_illustration.py" "$D/illustration" text
+python3 "$D/illustration/gen_round.py" "$D/illustration"
 
 render() {  # svg, width_px, out.png  (rewrites the declared size so sips renders at that width)
   local svg=$1 w=$2 out=$3
@@ -30,5 +31,6 @@ for w in 1200 3000; do render "$L/nicer-wordmark.svg" $w "$L/png/nicer-wordmark-
 I="$D/illustration"   # 2008 px = 600 dpi at 85 mm print width
 render "$I/nicer-illustration.svg" 2008 "$I/nicer-illustration.png"
 render "$I/nicer-illustration-labels.svg" 2008 "$I/nicer-illustration-labels.png"
+render "$I/nicer-illustration-round.svg" 2008 "$I/nicer-illustration-round.png"
 
 python3 "$D/build_page.py" "$D"
