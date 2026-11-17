@@ -25,6 +25,7 @@ L = {
 }
 WM_X = {"N": 0, "I": 98, "C": 138, "E": 238, "R": 318}   # wordmark C spacing
 GAP = 1.5  # half-width of the waterline gap
+BOLD = 2.2  # stroke width added to the letters in their own colour: 10 % of the 22-unit stems
 
 
 def logistic(lo, hi, xc, s):
@@ -53,6 +54,11 @@ def letters(xmap, scale=1.0, dy=0.0):
         d, _ = L[ch]
         out.append(f'<path transform="translate({x:.2f} {dy:.2f}) scale({scale})" d="{d}"/>')
     return "".join(out)
+
+
+def bold(col):
+    """Group attributes for letters filled and stroked in col, which thickens them by BOLD."""
+    return f'fill="{col}" stroke="{col}" stroke-width="{BOLD}" stroke-linejoin="miter"'
 
 
 def svg(vb, title, body, defs=""):
@@ -91,8 +97,8 @@ def concept1(mono, with_tile=True):
             f'<g clip-path="url(#{pre}-b)"><rect y="{BY}" width="{BT}" height="{BT}" fill="{bot}"/></g></g>')
     xmap = X1 if with_tile else {k: v - TX for k, v in X1.items()}
     body = ((tile if with_tile else "") +
-            f'<g clip-path="url(#{pre}-a)" fill="{top}">{letters(xmap)}</g>'
-            f'<g clip-path="url(#{pre}-b)" fill="{bot}">{letters(xmap)}</g>')
+            f'<g clip-path="url(#{pre}-a)" {bold(top)}>{letters(xmap)}</g>'
+            f'<g clip-path="url(#{pre}-b)" {bold(bot)}>{letters(xmap)}</g>')
     if with_tile:
         vb = (-6, BY - 6, W1 + 12, BT + 12)
     else:
@@ -173,8 +179,8 @@ def concept1b(mono):
     defs, body = grounded_tile(pre, mono)
     la, lb = f"{pre}-a", f"{pre}-b"
     top, bot = (INK, INK) if mono else (SKY, SEA)
-    body += (f'<g clip-path="url(#{la})" fill="{top}">{letters(X1)}</g>'
-             f'<g clip-path="url(#{lb})" fill="{bot}">{letters(X1)}</g>')
+    body += (f'<g clip-path="url(#{la})" {bold(top)}>{letters(X1)}</g>'
+             f'<g clip-path="url(#{lb})" {bold(bot)}>{letters(X1)}</g>')
     return svg((-6, BY - 6, W1 + 12, BT + 12), "NICER: ice sheet and shelf on a flat sea; waterline continues through the wordmark"
                + (" (mono)" if mono else ""), body, defs)
 
@@ -225,9 +231,9 @@ def concept1b_title(mono):
     pre = "c1tm" if mono else "c1t"
     defs, body = grounded_tile(pre, mono)
     top, bot = (INK, INK) if mono else (SKY, SEA)
-    body += (f'<g clip-path="url(#{pre}-a)" fill="{top}">{letters(X1)}</g>'
-             f'<g clip-path="url(#{pre}-b)" fill="{bot}">{letters(X1)}</g>')
-    d, ybot = text_outline(TITLE, X1["N"], W1, 100 + TITLE_GAP)
+    body += (f'<g clip-path="url(#{pre}-a)" {bold(top)}>{letters(X1)}</g>'
+             f'<g clip-path="url(#{pre}-b)" {bold(bot)}>{letters(X1)}</g>')
+    d, ybot = text_outline(TITLE, X1["N"] - BOLD / 2, W1 + BOLD / 2, 100 + BOLD / 2 + TITLE_GAP)
     body += f'<path d="{d}" fill="{INK if mono else TITLE_COL}"/>'
     h = max(BY + BT, ybot) + 6 - (BY - 6)
     return svg((-6, BY - 6, W1 + 12, round(h, 1)), f"NICER: {TITLE}" + (" (mono)" if mono else ""), body, defs)
