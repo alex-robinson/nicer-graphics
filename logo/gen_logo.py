@@ -147,11 +147,11 @@ def bed_path():
     return "M" + "L".join(f"{x:.2f},{bed_y(x):.2f}" for x in xs) + f"L{BT + 12},{BY + BT + 12}L-12,{BY + BT + 12}Z"
 
 
-def grounded_tile(pre, mono):
-    """defs, body for the ice-sheet/shelf tile (lockup coordinates)."""
+def grounded_tile(pre, mono, f=f1):
+    """defs, body for the ice-sheet/shelf tile (lockup coordinates); f is the waterline through the letters."""
     top, bot = (INK, INK) if mono else (SKY, SEA)
-    defs = (f'<clipPath id="{pre}-a"><path d="{clip_above(f1, -12, W1 + 6, BY - 6)}"/></clipPath>'
-            f'<clipPath id="{pre}-b"><path d="{clip_below(f1, -12, W1 + 6, BY + BT + 6)}"/></clipPath>'
+    defs = (f'<clipPath id="{pre}-a"><path d="{clip_above(f, -12, W1 + 6, BY - 6)}"/></clipPath>'
+            f'<clipPath id="{pre}-b"><path d="{clip_below(f, -12, W1 + 6, BY + BT + 6)}"/></clipPath>'
             f'<clipPath id="{pre}-t"><rect y="{BY}" width="{BT}" height="{BT}" rx="28"/></clipPath>')
     cx, cy, r = SUN
     bed = bed_path()
@@ -193,15 +193,16 @@ def icon1(mono):
 
 # ---------------------------------------------------------------- full logo with project title
 # The title is set in TeX Gyre Heros Bold (GUST Font License, logo/fonts/), dark grey in colour, and converted to outlines, so the
-# files render identically without the font installed. It spans the wordmark from N to R.
+# files render identically without the font installed. It spans the wordmark from N to R. NICER and the title together
+# fill the tile height.
 TITLE = "Next-generation Ice sheet-Climate Research"
 FONT = pathlib.Path(__file__).parent / "fonts" / "texgyreheros-bold.otf"
 TITLE_COL = "#3E454D"   # dark grey: lighter than the ink so the title stays secondary to NICER
-TITLE_GAP = 12.0   # letters bottom (y = 100) to title cap top
+DY_T = BY + BOLD / 2   # NICER ink top flush with the tile top; the title baseline sits on the tile bottom
 
 
-def text_outline(text, x0, x1, cap_top):
-    """SVG path of text in FONT, kerned, scaled uniformly to span x0..x1 with its cap height starting at cap_top."""
+def text_outline(text, x0, x1, base):
+    """SVG path of text in FONT, kerned, scaled uniformly to span x0..x1 with its baseline at base."""
     f = TTFont(FONT)
     cmap, gs, hmtx = f.getBestCmap(), f.getGlyphSet(), f["hmtx"]
     kern = {}
@@ -220,7 +221,6 @@ def text_outline(text, x0, x1, cap_top):
     bp = BoundsPen(gs); last.draw(bp)
     width = xs[-1] + bp.bounds[2]          # to the right ink edge of the last glyph
     s = (x1 - x0) / width
-    base = cap_top + s * f["OS/2"].sCapHeight
     pen = SVGPathPen(gs, ntos=lambda v: f"{v:.2f}")
     for g, gx in zip(names, xs):
         gs[g].draw(TransformPen(pen, (s, 0, 0, -s, x0 + s * gx, base)))
@@ -229,11 +229,13 @@ def text_outline(text, x0, x1, cap_top):
 
 def concept1b_title(mono):
     pre = "c1tm" if mono else "c1t"
-    defs, body = grounded_tile(pre, mono)
+    # waterline: sea level through N and I as in the tile, rising through C to the same height in E and R as in nicer-logo
+    f = logistic(SL, 30.0 + DY_T, c_mid, 13.0)
+    defs, body = grounded_tile(pre, mono, f)
     top, bot = (INK, INK) if mono else (SKY, SEA)
-    body += (f'<g clip-path="url(#{pre}-a)" {bold(top)}>{letters(X1)}</g>'
-             f'<g clip-path="url(#{pre}-b)" {bold(bot)}>{letters(X1)}</g>')
-    d, ybot = text_outline(TITLE, X1["N"] - BOLD / 2, W1 + BOLD / 2, 100 + BOLD / 2 + TITLE_GAP)
+    body += (f'<g clip-path="url(#{pre}-a)" {bold(top)}>{letters(X1, dy=DY_T)}</g>'
+             f'<g clip-path="url(#{pre}-b)" {bold(bot)}>{letters(X1, dy=DY_T)}</g>')
+    d, ybot = text_outline(TITLE, X1["N"] - BOLD / 2, W1 + BOLD / 2, BY + BT)
     body += f'<path d="{d}" fill="{INK if mono else TITLE_COL}"/>'
     h = max(BY + BT, ybot) + 6 - (BY - 6)
     return svg((-6, BY - 6, W1 + 12, round(h, 1)), f"NICER: {TITLE}" + (" (mono)" if mono else ""), body, defs)
